@@ -1,0 +1,139 @@
+/* src/styles/safe-content.css */
+/* Styles for SafeContentRenderer to ensure clean display of rich text content */
+
+.safe-content {
+  /* Reset any inherited styles that might interfere */
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  line-height: inherit;
+}
+
+/* Ensure paragraphs have proper spacing */
+.safe-content p {
+  margin: 0 0 1rem 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  line-height: inherit;
+}
+
+.safe-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Clean formatting for bold text */
+.safe-content strong,
+.safe-content b {
+  font-weight: 600;
+  color: inherit;
+  font-family: inherit;
+}
+
+/* Clean formatting for italic text */
+.safe-content em,
+.safe-content i {
+  font-style: italic;
+  color: inherit;
+  font-family: inherit;
+}
+
+/* Clean formatting for underlined text */
+.safe-content u {
+  text-decoration: underline;
+  color: inherit;
+  font-family: inherit;
+}
+
+/* Ensure line breaks work properly */
+.safe-content br {
+  line-height: inherit;
+}
+
+/* Remove any residual formatting that might slip through */
+.safe-content * {
+  /* Reset potential problematic properties */
+  font-family: inherit !important;
+  background-color: transparent !important;
+  border: none !important;
+  margin: inherit;
+  padding: inherit;
+}
+
+/* Special handling for the first paragraph with drop cap */
+.safe-content.first-paragraph p:first-child::first-letter,
+.safe-content .first-paragraph p:first-child::first-letter {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #4f46e5; /* Indigo-600 */
+  float: left;
+  line-height: 1;
+  margin-right: 0.5rem;
+  margin-top: 0.125rem;
+}
+
+/* Ensure content flows properly around floating elements */
+.safe-content::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+/* Quote styling */
+.safe-content.quote-style {
+  font-style: italic;
+  color: #374151; /* Gray-700 */
+  font-size: 1.25rem;
+  line-height: 1.7;
+}
+
+/* Paragraph styling */
+.safe-content.paragraph-style {
+  color: #4b5563; /* Gray-600 */
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+/* Heading styling */
+.safe-content.heading-style {
+  color: #111827; /* Gray-900 */
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* Plain text styling */
+.safe-content.plain-style {
+  color: #4b5563; /* Gray-600 */
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .safe-content.first-paragraph p:first-child::first-letter,
+  .safe-content .first-paragraph p:first-child::first-letter {
+    font-size: 2.5rem;
+    margin-right: 0.25rem;
+  }
+  
+  .safe-content.quote-style {
+    font-size: 1.125rem;
+  }
+  
+  .safe-content.heading-style {
+    font-size: 1.25rem;
+  }
+}
+
+/* Ensure no unwanted margins on nested elements */
+.safe-content p > *:first-child {
+  margin-top: 0;
+}
+
+.safe-content p > *:last-child {
+  margin-bottom: 0;
+}
