@@ -25,8 +25,8 @@ interface StaticRectorMessageProps {
 // Static rector data - customize this with your own content
 const rectorData: RectorMessageData = {
   id: 1,
-  name: "Rev. Dr. John Smith", // Replace with actual rector name
-  position: "Rector & Principal", // Replace with actual position
+  name: "Fr. Paul Gomes", // Replace with actual rector name
+  position: "Rector", // Replace with actual position
   image_url: "/images/rector/rector-photo.jpg", // Place rector photo in public/images/rector/
   quote: "Education is the most powerful weapon which you can use to change the world. Through faith and knowledge, we prepare our students for a life of service and leadership.", // Replace with actual quote
   paragraphs: [
