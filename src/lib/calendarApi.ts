@@ -17,7 +17,7 @@ import {
   EventsFeedResponse,
 } from '@/types/calendar';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.hsms-banani.org';
 
 class CalendarApiService {
   private async fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {

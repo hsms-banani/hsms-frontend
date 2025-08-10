@@ -1,5 +1,5 @@
-// lib/facultyApi.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+// lib/facultyApi.ts - UPDATED
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.hsms-banani.org';
 
 export interface FacultyMember {
   id: number;
@@ -18,7 +18,6 @@ export interface FacultyApiResponse {
   count?: number;
   next?: string;
   previous?: string;
-  // Direct array response for simple list
   data?: FacultyMember[];
 }
 
@@ -27,16 +26,20 @@ class FacultyApiService {
 
   constructor() {
     this.baseUrl = API_BASE_URL;
+    console.log('FacultyApiService initialized with baseUrl:', this.baseUrl);
   }
 
   async getFacultyMembers(): Promise<FacultyMember[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/academics/faculties/members/`, {
+      const url = `${this.baseUrl}/api/academics/faculties/members/`;
+      console.log('Fetching faculty members from:', url);
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        cache: 'no-store', // Ensure fresh data
+        cache: 'no-store',
       });
 
       if (!response.ok) {
@@ -45,7 +48,6 @@ class FacultyApiService {
 
       const data: FacultyApiResponse | FacultyMember[] = await response.json();
       
-      // Handle both paginated and direct array responses
       if (Array.isArray(data)) {
         return data;
       } else if (data.results) {
@@ -63,7 +65,10 @@ class FacultyApiService {
 
   async getFacultyMember(id: number): Promise<FacultyMember> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/academics/faculties/members/${id}/`, {
+      const url = `${this.baseUrl}/api/academics/faculties/members/${id}/`;
+      console.log('Fetching faculty member from:', url);
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +87,6 @@ class FacultyApiService {
     }
   }
 
-  // Helper method to get image URL with fallback
   getImageUrl(faculty: FacultyMember): string {
     if (faculty.image_url) {
       return faculty.image_url;
@@ -90,15 +94,12 @@ class FacultyApiService {
     if (faculty.image) {
       return faculty.image.startsWith('http') ? faculty.image : `${this.baseUrl}${faculty.image}`;
     }
-    // Fallback to placeholder
     return `/api/placeholder/400/400?text=${encodeURIComponent(faculty.name)}`;
   }
 
-  // Helper method to format bio text
   formatBio(bio?: string): string {
     if (!bio) return 'No biography available.';
     
-    // Limit bio length for preview
     const maxLength = 150;
     if (bio.length > maxLength) {
       return bio.substring(0, maxLength).trim() + '...';
@@ -106,14 +107,10 @@ class FacultyApiService {
     return bio;
   }
 
-  // Helper method to check if faculty has contact info
   hasContactInfo(faculty: FacultyMember): boolean {
     return !!(faculty.email);
   }
 }
 
-// Export singleton instance
 export const facultyApiService = new FacultyApiService();
-
-// Export types for use in components
 export type { FacultyMember, FacultyApiResponse };

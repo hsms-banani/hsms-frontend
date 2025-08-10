@@ -1,4 +1,4 @@
-// lib/heroapi.ts
+// lib/heroapi.ts - UPDATED
 export interface HeroSlide {
   id: number;
   title: string;
@@ -15,10 +15,8 @@ export interface ApiResponse {
   data: HeroSlide[];
 }
 
-// Get API URL from environment variable
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.hsms-banani.org';
 
-// Fallback slides in case API fails
 export const fallbackSlides: HeroSlide[] = [
   {
     id: 1,
@@ -49,11 +47,10 @@ export const fallbackSlides: HeroSlide[] = [
   }
 ];
 
-// Fetch hero slides from Django API
 export async function fetchHeroSlides(): Promise<{ slides: HeroSlide[]; error: string | null }> {
   try {
     const apiEndpoint = `${API_URL}/hero/api/active-slides/`;
-    console.log('Fetching from:', apiEndpoint);
+    console.log('Fetching hero slides from:', apiEndpoint);
     
     const response = await fetch(apiEndpoint, {
       method: 'GET',
@@ -61,9 +58,7 @@ export async function fetchHeroSlides(): Promise<{ slides: HeroSlide[]; error: s
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      credentials: 'include',
-      // Add cache control for better performance
-      next: { revalidate: 300 }, // Revalidate every 5 minutes
+      next: { revalidate: 300 },
     });
     
     if (!response.ok) {
@@ -72,19 +67,10 @@ export async function fetchHeroSlides(): Promise<{ slides: HeroSlide[]; error: s
     
     const data: ApiResponse = await response.json();
     
-    console.log('API Response:', data);
+    console.log('Hero API Response:', data);
     
     if (data.status === 'success' && data.data && data.data.length > 0) {
-      // Sort slides by order
       const sortedSlides = data.data.sort((a, b) => a.order - b.order);
-      
-      sortedSlides.forEach((slide, index) => {
-        console.log(`Slide ${index + 1}:`, {
-          title: slide.title,
-          image_url: slide.image_url,
-        });
-      });
-      
       return { slides: sortedSlides, error: null };
     } else {
       console.log('No slides found in API response, using fallback');
@@ -97,12 +83,11 @@ export async function fetchHeroSlides(): Promise<{ slides: HeroSlide[]; error: s
   }
 }
 
-// Utility function to check if image URL is accessible
 export async function checkImageUrl(url: string): Promise<boolean> {
   try {
     const response = await fetch(url, { 
       method: 'HEAD',
-      mode: 'no-cors' // This helps with CORS issues
+      mode: 'no-cors'
     });
     return true;
   } catch (error) {

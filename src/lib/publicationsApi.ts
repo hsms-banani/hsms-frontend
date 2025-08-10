@@ -1,7 +1,7 @@
-// src/lib/publicationsApi.ts
+// src/lib/publicationsApi.ts - UPDATED
 import { Publication } from '@/types/publications';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.hsms-banani.org';
 
 export interface PublicationResponse {
   results?: Publication[];
@@ -13,6 +13,7 @@ export interface PublicationResponse {
 class PublicationsAPI {
   private async fetchWithErrorHandling<T>(url: string, options?: RequestInit): Promise<T> {
     try {
+      console.log('Publications API request to:', url);
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
@@ -27,12 +28,11 @@ class PublicationsAPI {
 
       return await response.json();
     } catch (error) {
-      console.error('API request failed:', error);
+      console.error('Publications API request failed:', error);
       throw error;
     }
   }
 
-  // Ankur Publications
   async getAnkurPublications(): Promise<Publication[]> {
     try {
       const data = await this.fetchWithErrorHandling<Publication[]>(
@@ -68,7 +68,6 @@ class PublicationsAPI {
     }
   }
 
-  // Diptto Sakhyo Publications  
   async getDipttoSakhyoPublications(): Promise<Publication[]> {
     try {
       const data = await this.fetchWithErrorHandling<Publication[]>(

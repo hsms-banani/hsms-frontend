@@ -1,5 +1,5 @@
-// lib/api.ts
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// lib/api.ts - UPDATED
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.hsms-banani.org';
 
 export class ApiError extends Error {
   constructor(
@@ -27,6 +27,7 @@ export async function apiRequest<T>(
   };
 
   try {
+    console.log(`Making API request to: ${url}`);
     const response = await fetch(url, config);
     
     if (!response.ok) {
@@ -75,3 +76,4 @@ export const announcementApi = {
     apiRequest<Announcement[]>('/announcements/api/announcements/'),
 };
 
+// ========================================

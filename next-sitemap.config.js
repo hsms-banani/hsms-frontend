@@ -1,6 +1,6 @@
 // next-sitemap.config.js
 module.exports = {
-  siteUrl: 'https://holycrosscollege.edu.bd',
+  siteUrl: 'https://hsms-banani.org',
   generateRobotsTxt: true,
   robotsTxtOptions: {
     policies: [
@@ -11,7 +11,7 @@ module.exports = {
       },
     ],
     additionalSitemaps: [
-      'https://holycrosscollege.edu.bd/sitemap-0.xml',
+      'https://hsms-banani.org/sitemap-0.xml',
     ],
   },
   exclude: ['/admin/*', '/private/*', '/api/*', '/server-sitemap.xml'],

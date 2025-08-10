@@ -10,6 +10,13 @@ const nextConfig = {
   
   images: {
     remotePatterns: [
+      // Production backend domain
+      {
+        protocol: 'https',
+        hostname: 'api.hsms-banani.org',
+        pathname: '/media/**',
+      },
+      // Keep localhost for local development
       {
         protocol: 'http',
         hostname: 'localhost',
@@ -22,6 +29,7 @@ const nextConfig = {
         port: '8000',
         pathname: '/media/**',
       },
+      // External image services
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
@@ -31,12 +39,6 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'via.placeholder.com',
         pathname: '/**',
-      },
-      // Add your production domain here
-      {
-        protocol: 'https',
-        hostname: 'hsms-banani.org',
-        pathname: '/api/media/**',
       },
     ],
     // Disable optimization for local development if having issues
