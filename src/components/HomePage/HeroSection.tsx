@@ -1,8 +1,7 @@
-// components/HomePage/HeroSection.tsx - API with Local Fallback
+// components/HomePage/HeroSection.tsx - Static Images Only
 'use client';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 interface HeroSlide {
   id: number;
@@ -12,56 +11,56 @@ interface HeroSlide {
   order: number;
 }
 
-interface ApiResponse {
-  status: string;
-  count: number;
-  data: HeroSlide[];
-}
-
 export function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [usingFallback, setUsingFallback] = useState(false);
   const [imageLoadStates, setImageLoadStates] = useState<{ [key: number]: boolean }>({});
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
-  
-  const router = useRouter();
-  const API_URL = useRef(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000');
-  const isMountedRef = useRef(true);
 
-  // Your local fallback slides
-  const localSlides: HeroSlide[] = [
+  // Your static slides - customize these with your images and titles
+  const slides: HeroSlide[] = [
     {
       id: 1,
-      title: "Our Residence",
-      subtitle: "Our Residence",
+      title: "Welcome to HSMS Banani",
+      subtitle: "Excellence in Education Since Our Foundation",
       image_url: "/images/hero/slide1.jpg", // Place your image in public/images/hero/
       order: 1
     },
     {
       id: 2,
-      title: "Our School Building",
-      subtitle: "Nurturing Future Priests & Religious",
-      image_url: "/images/hero/slide2.jpg", // Place your image in public/images/hero/
+      title: "Academic Excellence",
+      subtitle: "Nurturing Young Minds for a Brighter Future",
+      image_url: "/images/hero/slide2.jpg",
       order: 2
     },
     {
       id: 3,
-      title: "Our Seminary",
-      subtitle: "Our Seminary",
-      image_url: "/images/hero/slide3.jpg", // Place your image in public/images/hero/
+      title: "Innovation & Learning",
+      subtitle: "Modern Facilities and Teaching Methods",
+      image_url: "/images/hero/slide3.jpg",
       order: 3
+    },
+    {
+      id: 4,
+      title: "Student Life & Activities",
+      subtitle: "Building Character Through Co-curricular Programs",
+      image_url: "/images/hero/slide4.jpg",
+      order: 4
+    },
+    {
+      id: 5,
+      title: "Future Ready Education",
+      subtitle: "Preparing Students for Tomorrow's Challenges",
+      image_url: "/images/hero/slide5.jpg",
+      order: 5
     }
-    // Add more slides as needed
   ];
 
-  // Initialize image states for slides
-  const initializeImageStates = useCallback((slidesData: HeroSlide[]) => {
+  // Initialize image states
+  useEffect(() => {
     const initialLoadStates: { [key: number]: boolean } = {};
     const initialErrorStates: { [key: number]: boolean } = {};
     
-    slidesData.forEach((slide) => {
+    slides.forEach((slide) => {
       initialLoadStates[slide.id] = false;
       initialErrorStates[slide.id] = false;
     });
@@ -70,141 +69,31 @@ export function HeroSection() {
     setImageErrors(initialErrorStates);
   }, []);
 
-  // Fetch hero slides from API
-  const loadSlidesFromAPI = useCallback(async () => {
-    try {
-      const apiEndpoint = `${API_URL.current}/hero/api/active-slides/`;
-      console.log('🔄 Trying API:', apiEndpoint);
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-      
-      const response = await fetch(apiEndpoint, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        cache: 'no-store',
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data: ApiResponse = await response.json();
-      console.log('📋 API Response:', data);
-      
-      if (data.status === 'success' && data.data && data.data.length > 0) {
-        const sortedSlides = data.data.sort((a, b) => a.order - b.order);
-        
-        // Process image URLs
-        const processedSlides = sortedSlides.map(slide => ({
-          ...slide,
-          image_url: slide.image_url.startsWith('http')
-            ? slide.image_url
-            : `${API_URL.current}${slide.image_url}`
-        }));
-        
-        console.log('✅ Using API slides:', processedSlides.length);
-        setSlides(processedSlides);
-        setUsingFallback(false);
-        initializeImageStates(processedSlides);
-        return true;
-      } else {
-        console.log('⚠️ API returned no slides');
-        return false;
-      }
-    } catch (error) {
-      console.log('❌ API failed:', error instanceof Error ? error.message : 'Unknown error');
-      return false;
-    }
-  }, [initializeImageStates]);
-
-  // Load slides (try API first, then fallback to local)
-  const loadSlides = useCallback(async () => {
-    if (!isMountedRef.current) return;
-    
-    setLoading(true);
-    
-    // Try API first
-    const apiSuccess = await loadSlidesFromAPI();
-    
-    if (!apiSuccess && isMountedRef.current) {
-      // Use local fallback slides
-      console.log('🏠 Using local fallback slides');
-      setSlides(localSlides);
-      setUsingFallback(true);
-      initializeImageStates(localSlides);
-    }
-    
-    if (isMountedRef.current) {
-      setLoading(false);
-    }
-  }, [loadSlidesFromAPI, localSlides, initializeImageStates]);
-
-  // Load slides on component mount
-  useEffect(() => {
-    isMountedRef.current = true;
-    loadSlides();
-
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, [loadSlides]);
-
   // Auto-advance slides
   useEffect(() => {
     if (slides.length <= 1) return;
     
     const interval = setInterval(() => {
-      if (isMountedRef.current) {
-        setCurrentSlide((prev) => (prev + 1) % slides.length);
-      }
-    }, 6000);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000); // Change slide every 5 seconds
     
     return () => clearInterval(interval);
   }, [slides.length]);
 
   // Handle image load
   const handleImageLoad = useCallback((slideId: number) => {
-    if (isMountedRef.current) {
-      setImageLoadStates(prev => ({ ...prev, [slideId]: true }));
-      setImageErrors(prev => ({ ...prev, [slideId]: false }));
-    }
+    setImageLoadStates(prev => ({ ...prev, [slideId]: true }));
+    setImageErrors(prev => ({ ...prev, [slideId]: false }));
   }, []);
 
   // Handle image error
   const handleImageError = useCallback((slideId: number) => {
-    if (isMountedRef.current) {
-      setImageErrors(prev => ({ ...prev, [slideId]: true }));
-      setImageLoadStates(prev => ({ ...prev, [slideId]: false }));
-    }
+    setImageErrors(prev => ({ ...prev, [slideId]: true }));
+    setImageLoadStates(prev => ({ ...prev, [slideId]: false }));
   }, []);
-
-  if (loading) {
-    return (
-      <section className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-700">Loading hero content...</p>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden">
-      {/* Debug info - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="absolute top-4 right-4 z-50 bg-black bg-opacity-70 text-white px-3 py-1 rounded text-xs">
-          {usingFallback ? '🏠 Local Images' : '🌐 API Images'}
-        </div>
-      )}
-
       {/* Slides Container */}
       {slides.map((slide, index) => (
         <div 
@@ -220,19 +109,18 @@ export function HeroSection() {
                 src={slide.image_url}
                 alt={slide.title}
                 fill
-                priority={index === 0}
+                priority={index === 0} // Prioritize first image for faster loading
                 className="object-cover object-center"
                 onLoad={() => handleImageLoad(slide.id)}
                 onError={() => handleImageError(slide.id)}
-                unoptimized={slide.image_url.includes('localhost') || usingFallback}
                 sizes="100vw"
               />
             ) : (
               /* Fallback gradient background if image fails */
               <div className="w-full h-full bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center">
                 <div className="text-white text-center p-8">
-                  <div className="text-6xl mb-4">🖼️</div>
-                  <p className="text-lg opacity-80">Image temporarily unavailable</p>
+                  <div className="text-6xl mb-4">🏫</div>
+                  <p className="text-lg opacity-80">HSMS Banani</p>
                 </div>
               </div>
             )}
@@ -270,48 +158,49 @@ export function HeroSection() {
       ))}
       
       {/* Navigation Dots */}
-      {slides.length > 1 && (
-        <div className="absolute bottom-6 left-0 right-0 z-30 flex justify-center">
-          <div className="flex space-x-3">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentSlide 
-                    ? 'bg-white scale-125 shadow-lg' 
-                    : 'bg-white bg-opacity-50 hover:bg-opacity-75'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
+      <div className="absolute bottom-6 left-0 right-0 z-30 flex justify-center">
+        <div className="flex space-x-3">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentSlide 
+                  ? 'bg-white scale-125 shadow-lg' 
+                  : 'bg-white bg-opacity-50 hover:bg-opacity-75'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Navigation Arrows for larger screens */}
-      {slides.length > 1 && (
-        <>
-          <button
-            onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all duration-300 hidden md:block hover:scale-110"
-            aria-label="Previous slide"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all duration-300 hidden md:block hover:scale-110"
-            aria-label="Next slide"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </>
-      )}
+      <>
+        <button
+          onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all duration-300 hidden md:block hover:scale-110"
+          aria-label="Previous slide"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all duration-300 hidden md:block hover:scale-110"
+          aria-label="Next slide"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </>
+
+      {/* Slide Counter */}
+      <div className="absolute top-4 right-4 z-30 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+        {currentSlide + 1} / {slides.length}
+      </div>
     </section>
   );
 }
