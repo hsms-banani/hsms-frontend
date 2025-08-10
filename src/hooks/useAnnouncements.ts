@@ -1,4 +1,4 @@
-// hooks/useAnnouncements.ts
+// hooks/useAnnouncements.ts - CORRECTED FROM YOUR VERSION
 import { useState, useEffect, useCallback } from 'react';
 
 interface Announcement {
@@ -29,7 +29,8 @@ interface AnnouncementResponse {
   announcements: Announcement[];
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.hsms-banani.org';
+// FIXED: Make sure this uses your correct environment variable
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.hsms-banani.org';
 
 export const useAnnouncements = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -40,25 +41,38 @@ export const useAnnouncements = () => {
   const fetchTicker = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_BASE_URL}/announcements/api/announcements/ticker/`, {
+      // FIXED: Use the correct URL pattern that matches your Django URLs
+      const response = await fetch(`${API_BASE_URL}/api/announcements/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Added for CORS
+        mode: 'cors', // Added for CORS
       });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const data: AnnouncementResponse = await response.json();
+      // Since your Django API returns an array of announcements, not the ticker format
+      // Let's handle it properly
+      const data: Announcement[] = await response.json();
       
-      setTickerItems(data.ticker_items || []);
-      setAnnouncements(data.announcements || []);
+      // Convert announcements to ticker items
+      const tickerData: TickerItem[] = data.map(ann => ({
+        id: ann.id,
+        title: ann.title,
+        content: ann.content
+      }));
+      
+      setTickerItems(tickerData);
+      setAnnouncements(data);
       setError(null);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch announcements';
       setError(errorMessage);
+      console.error('Fetch error details:', err); // Better debugging
       
       // Fallback data for development
       const fallbackData: TickerItem[] = [
@@ -75,11 +89,14 @@ export const useAnnouncements = () => {
   const fetchAllAnnouncements = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_BASE_URL}/announcements/api/announcements/`, {
+      // FIXED: Use the correct URL pattern
+      const response = await fetch(`${API_BASE_URL}/api/announcements/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Added for CORS
+        mode: 'cors', // Added for CORS
       });
       
       if (!response.ok) {
@@ -92,6 +109,7 @@ export const useAnnouncements = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch announcements';
       setError(errorMessage);
+      console.error('Fetch all announcements error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -99,11 +117,14 @@ export const useAnnouncements = () => {
 
   const fetchAnnouncement = useCallback(async (id: number): Promise<Announcement | null> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/announcements/api/announcements/${id}/`, {
+      // FIXED: Use the correct URL pattern
+      const response = await fetch(`${API_BASE_URL}/api/announcements/${id}/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Added for CORS
+        mode: 'cors', // Added for CORS
       });
       
       if (!response.ok) {
@@ -147,11 +168,14 @@ export const useAnnouncementDetail = (id: number) => {
     const fetchAnnouncement = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`${API_BASE_URL}/announcements/api/announcements/${id}/`, {
+        // FIXED: Use the correct URL pattern
+        const response = await fetch(`${API_BASE_URL}/api/announcements/${id}/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include', // Added for CORS
+          mode: 'cors', // Added for CORS
         });
         
         if (!response.ok) {
@@ -166,6 +190,7 @@ export const useAnnouncementDetail = (id: number) => {
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch announcement');
+        console.error('Fetch announcement detail error:', err);
       } finally {
         setIsLoading(false);
       }
