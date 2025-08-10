@@ -1,4 +1,4 @@
-// src/components/HomePage/StaticRectorMessage.tsx - Static Version
+// src/components/HomePage/DynamicRectorMessage.tsx - Static Version (Updated Export Names)
 'use client';
 
 import React from 'react';
@@ -37,7 +37,7 @@ const rectorData: RectorMessageData = {
     },
     {
       id: 2,
-      content: "Our seminary community is built on the foundation of faith and service, creating an environment where future priests and religious can develop their theological understanding, pastoral skills, and spiritual maturity. We believe in holistic development that encompasses academic excellence, spiritual growth, and character formation.",
+      content: "Our seminary community is built on the foundation of faith, scholarship, and service, creating an environment where future clergy can develop their theological understanding, pastoral skills, and spiritual maturity. We believe in holistic development that encompasses academic excellence, spiritual growth, and character formation.",
       order: 2
     },
     {
@@ -82,7 +82,7 @@ const RectorQuote: React.FC<{ quote: string }> = ({ quote }) => {
   );
 };
 
-export const StaticRectorMessage: React.FC<StaticRectorMessageProps> = ({ 
+export const DynamicRectorMessage: React.FC<StaticRectorMessageProps> = ({ 
   isFullPage = false, 
   showTitle = true 
 }) => {
@@ -185,4 +185,4 @@ export const StaticRectorMessage: React.FC<StaticRectorMessageProps> = ({
   );
 };
 
-export default StaticRectorMessage;
+export default DynamicRectorMessage;
