@@ -1,4 +1,4 @@
-// components/HomePage/HeroSection.tsx - Alternative approach
+// components/HomePage/HeroSection.tsx - API with Local Fallback
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
@@ -22,59 +22,39 @@ export function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [usingFallback, setUsingFallback] = useState(false);
   const [imageLoadStates, setImageLoadStates] = useState<{ [key: number]: boolean }>({});
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
-  const [forceRefresh, setForceRefresh] = useState(0); // Add this to force refresh
   
   const router = useRouter();
   const API_URL = useRef(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000');
   const isMountedRef = useRef(true);
-  const hasFetchedRef = useRef(false); // Track if we've fetched data
 
-  // Fallback slides with working images
-  const fallbackSlides: HeroSlide[] = [
+  // Your local fallback slides
+  const localSlides: HeroSlide[] = [
     {
       id: 1,
-      title: "Empowering Future Leaders",
-      subtitle: "Our students excel in academics, arts, and athletics",
-      image_url: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+      title: "Our Residence",
+      subtitle: "Our Residence",
+      image_url: "/images/hero/slide1.jpg", // Place your image in public/images/hero/
       order: 1
     },
     {
       id: 2,
-      title: "Academic Excellence",
-      subtitle: "Rigorous curriculum designed for success",
-      image_url: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+      title: "Our School Building",
+      subtitle: "Nurturing Future Priests & Religious",
+      image_url: "/images/hero/slide2.jpg", // Place your image in public/images/hero/
       order: 2
+    },
+    {
+      id: 3,
+      title: "Our Seminary",
+      subtitle: "Our Seminary",
+      image_url: "/images/hero/slide3.jpg", // Place your image in public/images/hero/
+      order: 3
     }
+    // Add more slides as needed
   ];
-
-  // Force refresh images when navigating to home
-  useEffect(() => {
-    const handleRouteChange = () => {
-      if (window.location.pathname === '/') {
-        console.log('🏠 Navigated to home, forcing refresh');
-        setForceRefresh(prev => prev + 1);
-        hasFetchedRef.current = false;
-        setImageLoadStates({});
-        setImageErrors({});
-      }
-    };
-
-    // Listen for route changes
-    window.addEventListener('popstate', handleRouteChange);
-    return () => window.removeEventListener('popstate', handleRouteChange);
-  }, []);
-
-  // Reset all states when component mounts
-  const resetStates = useCallback(() => {
-    setCurrentSlide(0);
-    setLoading(true);
-    setError(null);
-    setImageLoadStates({});
-    setImageErrors({});
-  }, []);
 
   // Initialize image states for slides
   const initializeImageStates = useCallback((slidesData: HeroSlide[]) => {
@@ -90,17 +70,14 @@ export function HeroSection() {
     setImageErrors(initialErrorStates);
   }, []);
 
-  // Fetch hero slides
-  const loadSlides = useCallback(async () => {
-    if (!isMountedRef.current || hasFetchedRef.current) return;
-    
-    hasFetchedRef.current = true;
-    setLoading(true);
-    setError(null);
-    
+  // Fetch hero slides from API
+  const loadSlidesFromAPI = useCallback(async () => {
     try {
       const apiEndpoint = `${API_URL.current}/hero/api/active-slides/`;
-      console.log('🔄 Fetching from:', apiEndpoint);
+      console.log('🔄 Trying API:', apiEndpoint);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
       
       const response = await fetch(apiEndpoint, {
         method: 'GET',
@@ -108,8 +85,11 @@ export function HeroSection() {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        cache: 'no-store', // Force fresh data
+        cache: 'no-store',
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -118,53 +98,63 @@ export function HeroSection() {
       const data: ApiResponse = await response.json();
       console.log('📋 API Response:', data);
       
-      if (!isMountedRef.current) return;
-      
       if (data.status === 'success' && data.data && data.data.length > 0) {
         const sortedSlides = data.data.sort((a, b) => a.order - b.order);
         
-        // Process image URLs with cache busting
+        // Process image URLs
         const processedSlides = sortedSlides.map(slide => ({
           ...slide,
           image_url: slide.image_url.startsWith('http')
-            ? `${slide.image_url}?v=${Date.now()}` // Add cache busting
-            : `${API_URL.current}${slide.image_url}?v=${Date.now()}`
+            ? slide.image_url
+            : `${API_URL.current}${slide.image_url}`
         }));
         
-        console.log('✅ Processed slides:', processedSlides);
+        console.log('✅ Using API slides:', processedSlides.length);
         setSlides(processedSlides);
+        setUsingFallback(false);
         initializeImageStates(processedSlides);
-        
+        return true;
       } else {
-        console.log('⚠️ No slides found, using fallback');
-        setSlides(fallbackSlides);
-        initializeImageStates(fallbackSlides);
+        console.log('⚠️ API returned no slides');
+        return false;
       }
     } catch (error) {
-      console.error('❌ Error fetching hero slides:', error);
-      if (isMountedRef.current) {
-        setError(`Failed to load: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        setSlides(fallbackSlides);
-        initializeImageStates(fallbackSlides);
-      }
-    } finally {
-      if (isMountedRef.current) {
-        setLoading(false);
-      }
+      console.log('❌ API failed:', error instanceof Error ? error.message : 'Unknown error');
+      return false;
     }
-  }, [initializeImageStates, fallbackSlides]);
+  }, [initializeImageStates]);
 
-  // Effect to load slides on mount or force refresh
+  // Load slides (try API first, then fallback to local)
+  const loadSlides = useCallback(async () => {
+    if (!isMountedRef.current) return;
+    
+    setLoading(true);
+    
+    // Try API first
+    const apiSuccess = await loadSlidesFromAPI();
+    
+    if (!apiSuccess && isMountedRef.current) {
+      // Use local fallback slides
+      console.log('🏠 Using local fallback slides');
+      setSlides(localSlides);
+      setUsingFallback(true);
+      initializeImageStates(localSlides);
+    }
+    
+    if (isMountedRef.current) {
+      setLoading(false);
+    }
+  }, [loadSlidesFromAPI, localSlides, initializeImageStates]);
+
+  // Load slides on component mount
   useEffect(() => {
     isMountedRef.current = true;
-    hasFetchedRef.current = false;
-    resetStates();
     loadSlides();
 
     return () => {
       isMountedRef.current = false;
     };
-  }, [forceRefresh]); // Add forceRefresh as dependency
+  }, [loadSlides]);
 
   // Auto-advance slides
   useEffect(() => {
@@ -181,7 +171,6 @@ export function HeroSection() {
 
   // Handle image load
   const handleImageLoad = useCallback((slideId: number) => {
-    console.log('✅ Image loaded for slide:', slideId);
     if (isMountedRef.current) {
       setImageLoadStates(prev => ({ ...prev, [slideId]: true }));
       setImageErrors(prev => ({ ...prev, [slideId]: false }));
@@ -189,8 +178,7 @@ export function HeroSection() {
   }, []);
 
   // Handle image error
-  const handleImageError = useCallback((slideId: number, slideTitle: string, imageUrl: string) => {
-    console.error('❌ Image failed for slide:', slideTitle, imageUrl);
+  const handleImageError = useCallback((slideId: number) => {
     if (isMountedRef.current) {
       setImageErrors(prev => ({ ...prev, [slideId]: true }));
       setImageLoadStates(prev => ({ ...prev, [slideId]: false }));
@@ -210,15 +198,22 @@ export function HeroSection() {
 
   return (
     <section className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden">
+      {/* Debug info - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="absolute top-4 right-4 z-50 bg-black bg-opacity-70 text-white px-3 py-1 rounded text-xs">
+          {usingFallback ? '🏠 Local Images' : '🌐 API Images'}
+        </div>
+      )}
+
       {/* Slides Container */}
       {slides.map((slide, index) => (
         <div 
-          key={`slide-${slide.id}-${forceRefresh}-${index}`} // Include forceRefresh in key
+          key={`slide-${slide.id}-${index}`}
           className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
             index === currentSlide ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          {/* Background Image using Next.js Image component */}
+          {/* Background Image */}
           <div className="relative w-full h-full bg-gradient-to-br from-blue-100 to-blue-200">
             {!imageErrors[slide.id] ? (
               <Image
@@ -228,10 +223,9 @@ export function HeroSection() {
                 priority={index === 0}
                 className="object-cover object-center"
                 onLoad={() => handleImageLoad(slide.id)}
-                onError={() => handleImageError(slide.id, slide.title, slide.image_url)}
-                unoptimized={slide.image_url.includes('localhost')}
+                onError={() => handleImageError(slide.id)}
+                unoptimized={slide.image_url.includes('localhost') || usingFallback}
                 sizes="100vw"
-                key={`image-${slide.id}-${forceRefresh}`} // Force re-render
               />
             ) : (
               /* Fallback gradient background if image fails */
@@ -243,7 +237,7 @@ export function HeroSection() {
               </div>
             )}
             
-            {/* Loading state */}
+            {/* Loading state for individual images */}
             {!imageLoadStates[slide.id] && !imageErrors[slide.id] && (
               <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center z-10">
                 <div className="text-center">
