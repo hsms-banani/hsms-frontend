@@ -76,9 +76,9 @@ export const useAnnouncements = () => {
       
       // Fallback data for development
       const fallbackData: TickerItem[] = [
-        { id: 1, title: "Applications Open for Fall 2025 Spiritual Formation Program", content: "" },
-        { id: 2, title: "Holy Week Retreat: April 12-19", content: "" },
-        { id: 3, title: "Ordination Ceremony: May 15th", content: "" }
+        { id: 1, title: "Orientation of the new semester: 11 August 2025", content: "" },
+        { id: 2, title: "Class Beginning: 12 August 2025", content: "" },
+        
       ];
       setTickerItems(fallbackData);
     } finally {
