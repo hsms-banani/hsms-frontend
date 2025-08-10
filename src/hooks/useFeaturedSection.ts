@@ -76,7 +76,7 @@ export const useFeaturedSection = (): UseFeaturedSectionReturn => {
     const baseUrl = 
       process.env.NEXT_PUBLIC_API_BASE_URL || 
       process.env.NEXT_PUBLIC_API_URL || 
-      'http://localhost:8000';
+      'https://api.hsms-banani.org';
     
     const cleanBaseUrl = baseUrl.replace(/\/$/, '');
     return `${cleanBaseUrl}/about/api/featured/complete/`;
