@@ -120,10 +120,10 @@ export function TopBar() {
           <div className="flex items-center bg-white bg-opacity-20 px-3 py-1 rounded-full backdrop-blur-sm border border-white border-opacity-30">
             <EnvelopeIcon className="h-4 w-4 mr-2 text-indigo-800" />
             <a 
-              href="mailto:rectorhsms@gmail.com" 
+              href="mailto:hsmsmajorseminary@gmail.com" 
               className="text-sm font-semibold hover:text-indigo-700 transition-colors duration-200"
             >
-              rectorhsms@gmail.com
+              hsmsmajorseminary@gmail.com
             </a>
           </div>
         </div>
