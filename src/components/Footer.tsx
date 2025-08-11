@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { 
   EnvelopeIcon, 
-  PhoneIcon, 
   FacebookIcon,
   YouTubeIcon,
   InstagramIcon
@@ -68,12 +67,8 @@ export function Footer() {
           </p>
           <div className="space-y-3">
             <div className="flex items-center">
-              <PhoneIcon className="h-4 w-4 mr-2 text-blue-300" />
-              <span className="text-gray-300">+880 1610-677974</span>
-            </div>
-            <div className="flex items-center">
               <EnvelopeIcon className="h-4 w-4 mr-2 text-blue-300" />
-              <span className="text-gray-300">hsms@gmail.com</span>
+              <span className="text-gray-300">hsmsmajorseminary@gmail.com</span>
             </div>
             <div className="text-gray-300">
               Holy Spirit Major Seminary,
