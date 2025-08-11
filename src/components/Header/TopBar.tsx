@@ -111,10 +111,6 @@ export function TopBar() {
     router.push(`/announcements/${id}`);
   };
 
-  const handleRetry = () => {
-    refetch();
-  };
-
   return (
     <div className="bg-gradient-to-r from-amber-400 via-amber-300 to-orange-400 text-indigo-900 py-2 border-b border-amber-500 shadow-lg">
       <div className="max-w-full mx-auto px-2 flex flex-col lg:flex-row justify-between items-center text-sm">
@@ -124,10 +120,10 @@ export function TopBar() {
           <div className="flex items-center bg-white bg-opacity-20 px-3 py-1 rounded-full backdrop-blur-sm border border-white border-opacity-30">
             <EnvelopeIcon className="h-4 w-4 mr-2 text-indigo-800" />
             <a 
-              href="mailto:hsmsmajorseminary@gmail.com" 
+              href="mailto:rectorhsms@gmail.com" 
               className="text-sm font-semibold hover:text-indigo-700 transition-colors duration-200"
             >
-              hsmsmajorseminary@gmail.com
+              rectorhsms@gmail.com
             </a>
           </div>
         </div>
@@ -143,20 +139,6 @@ export function TopBar() {
               tickerItems={tickerItems} 
               onItemClick={handleAnnouncementClick}
             />
-          )}
-          {error && (
-            <div className="flex items-center justify-center text-xs text-indigo-800 mt-1 opacity-75">
-              <span className="mr-2 bg-red-500 bg-opacity-20 px-2 py-1 rounded-full" title={`Error: ${error}`}>
-                ⚠ Connection issue
-              </span>
-              <button 
-                onClick={handleRetry}
-                className="bg-white bg-opacity-20 px-2 py-1 rounded-full hover:bg-opacity-30 transition-all duration-200"
-                title="Click to retry"
-              >
-                Retry
-              </button>
-            </div>
           )}
         </div>
         
