@@ -1,5 +1,5 @@
 // lib/api.ts - UPDATED
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.hsms-banani.org';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://hsms-banani.org';
 
 export class ApiError extends Error {
   constructor(

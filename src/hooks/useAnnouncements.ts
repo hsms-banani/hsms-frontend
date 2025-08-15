@@ -30,7 +30,7 @@ interface AnnouncementResponse {
 }
 
 // FIXED: Make sure this uses your correct environment variable
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.hsms-banani.org';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hsms-banani.org';
 
 export const useAnnouncements = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);

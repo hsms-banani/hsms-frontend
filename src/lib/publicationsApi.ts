@@ -1,7 +1,7 @@
 // src/lib/publicationsApi.ts - UPDATED
 import { Publication } from '@/types/publications';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.hsms-banani.org';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://hsms-banani.org';
 
 export interface PublicationResponse {
   results?: Publication[];

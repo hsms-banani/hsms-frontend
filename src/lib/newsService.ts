@@ -1,7 +1,7 @@
 // src/lib/newsService.ts - New file to avoid import conflicts
 import { NewsItem, NewsListResponse } from '@/types/news';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hsms-banani.org';
 
 console.log('🔧 NewsService initialized with API_BASE_URL:', API_BASE_URL);
 

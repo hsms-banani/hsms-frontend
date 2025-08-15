@@ -1,5 +1,5 @@
 // src/lib/studentsApi.ts (UPDATED)
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hsms-banani.org';
 const STUDENTS_API_BASE = `${API_BASE_URL}/students/api/students`;
 
 export interface Student {

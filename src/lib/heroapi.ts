@@ -15,7 +15,7 @@ export interface ApiResponse {
   data: HeroSlide[];
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.hsms-banani.org';
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://hsms-banani.org';
 
 export const fallbackSlides: HeroSlide[] = [
   {
